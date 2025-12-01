@@ -9,7 +9,18 @@ import SwiftUI
 
 struct Home: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        TabView{
+            Tab("Peliculas",systemImage: "film"){
+                HomeView()
+            }
+            Tab("Series", systemImage: "tv"){
+                SeriesView()
+            }
+            Tab("Favoritos", systemImage: "heart"){
+                FavoriteView()
+            }
+        }
+        .padding()
     }
 }
 

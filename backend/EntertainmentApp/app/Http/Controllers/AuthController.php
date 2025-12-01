@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException as Exception;
 
 class AuthController extends Controller
 {
@@ -20,31 +21,33 @@ class AuthController extends Controller
                 'email'      => 'required|string|email|unique:users,email',
                 'password'   => 'required|string|min:8'
             ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (Exception $e) {
             if (isset($e->errors()['email'])) {
                 return response()->json([
                     'success' => false,
                     'message' => 'El correo electrónico ya está registrado.'
-                ]);
+                ], 422);
             }
             return response()->json([
                 'success' => false,
                 'message' => 'Datos inválidos',
                 'errors' => $e->errors()
-            ]);
+            ], 422);
         }
 
-        $user = new User();
-        $user->name = $request->name;
-        $user->last_name = $request->last_name;
-        $user->email = $request->email;
-        $user->password = Hash::make($request->password);
-        $user->save();
+        $user = User::create([
+            'name'      => $validated['name'],
+            'last_name' => $validated['last_name'],
+            'email'     => $validated['email'],
+            'password'  => Hash::make($validated['password']),
+        ]);
+
+        $token = $user->createToken('mobile')->plainTextToken;
 
         return response()->json([
             'success' => true,
             'message' => 'Usuario registrado correctamente',
-            'token'   => $user->createToken('mobile')->plainTextToken,
+            'token'   => $token,
             'user'    => $user
         ], 201);
     }
@@ -75,7 +78,7 @@ class AuthController extends Controller
             'message' => 'Inicio de sesión correcto',
             'token'   => $token,
             'user'    => $user
-        ]);
+        ], 200);
     }
 
     /**

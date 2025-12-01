@@ -6,3 +6,10 @@
 //
 
 import Foundation
+
+struct Favorite: Codable, Identifiable {
+    let id: Int
+    let item_id: Int
+    let type: String
+    let title: String
+}

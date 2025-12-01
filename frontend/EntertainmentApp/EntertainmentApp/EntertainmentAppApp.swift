@@ -9,9 +9,20 @@ import SwiftUI
 
 @main
 struct EntertainmentAppApp: App {
+    @StateObject var appState = AppState()
+    @StateObject var api = ApiService()
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            // ContentView()
+            NavigationStack {
+                if appState.isLoggedIn {
+                    Home()
+                } else {
+                    LoginView()
+                }
+            }
+            .environmentObject(appState)
+            .environmentObject(api)
         }
     }
 }

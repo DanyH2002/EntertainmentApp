@@ -8,11 +8,22 @@
 import SwiftUI
 
 struct MoviePoster: View {
+    let url: String?
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        AsyncImage(url: makeURL()) { image in
+            image.resizable().scaledToFill()
+        } placeholder: {
+            Rectangle().fill(Color.gray.opacity(0.3))
+        }
+    }
+    
+    private func makeURL() -> URL? {
+        guard let path = url else { return nil }
+        return URL(string: "https://image.tmdb.org/t/p/w500\(path)")
     }
 }
 
 #Preview {
-    MoviePoster()
+    MoviePoster(url: "/xYLBgw7dHyEqmcrSk2Sq3asuSq5.jpg")
 }
