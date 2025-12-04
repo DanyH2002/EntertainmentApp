@@ -12,11 +12,27 @@ class FavoriteController extends Controller
      */
     public function index(Request $request)
     {
-        $favorites = $request->user()->favorites()->orderBy('id', 'desc')->get();
+        $user = $request->user();
+        $favorites = $request
+            ->user()
+            ->favorites()
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $movies = $favorites->where('type', 'movie')->values();
+        $series = $favorites->where('type', 'serie')->values();
 
         return response()->json([
             'success' => true,
-            'favorites' => $favorites
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email
+            ],
+            'favorites' => [
+                'movies' => $movies,
+                'series' => $series
+            ]
         ]);
     }
 

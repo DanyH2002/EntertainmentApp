@@ -1,26 +1,26 @@
 //
-//  MovieDetailView.swift
+//  SeriesDetailView.swift
 //  EntertainmentApp
 //
-//  Created by Hulda Daniela Crisanto Luna on 27/11/25.
+//  Created by Hulda Daniela Crisanto Luna on 03/12/25.
 //
 
 import SwiftUI
 
-struct MovieDetailView: View {
+struct SeriesDetailView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var api: ApiService
-
+    
     let id: Int
-
-    @State private var movie: MovieDetail?
+    
+    @State private var series: SeriesDetail?
     @State private var isLoading = true
     @State private var showError = false
     @State private var animate = false
-
+    
     var body: some View {
         ZStack {
-            if let backdrop = movie?.backdropPath,
+            if let backdrop = series?.backdropPath,
                let url = URL(string: "https://image.tmdb.org/t/p/original\(backdrop)") {
                 
                 AsyncImage(url: url) { img in
@@ -39,14 +39,13 @@ struct MovieDetailView: View {
             
             ScrollView {
                 VStack(spacing: 16) {
-                    
-                    Text(movie?.title ?? "Cargando...")
+                    Text(series?.name ?? "Cargando...")
                         .font(.largeTitle.bold())
                         .multilineTextAlignment(.center)
                         .foregroundColor(.white)
                         .padding(.top, 8)
                     
-                    if let rating = movie?.voteAverage {
+                    if let rating = series?.voteAverage {
                         Text("⭐️ \(String(format: "%.1f", rating))/10")
                             .font(.headline)
                             .foregroundColor(.white.opacity(0.9))
@@ -57,7 +56,7 @@ struct MovieDetailView: View {
                             .font(.title3.bold())
                             .foregroundColor(.white)
                         
-                        Text(movie?.overview ?? "No hay descripción disponible.")
+                        Text(series?.overview ?? "No hay descripción disponible.")
                             .foregroundColor(.white.opacity(0.95))
                             .font(.body)
                             .lineSpacing(6)
@@ -67,7 +66,7 @@ struct MovieDetailView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal)
                     
-                    if let genres = movie?.genres, !genres.isEmpty {
+                    if let genres = series?.genres, !genres.isEmpty {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Géneros")
                                 .font(.title3.bold())
@@ -90,19 +89,20 @@ struct MovieDetailView: View {
                         .padding(.horizontal)
                     }
                     
-                    if movie != nil {
+                    if series != nil {
                         VStack(alignment: .leading, spacing: 12) {
                             Text("Información")
                                 .font(.title3.bold())
                                 .foregroundColor(.white)
                             
                             VStack(spacing: 8) {
-                                infoRow("Fecha de estreno", movie?.releaseDate)
-                                infoRow("Duración", movie?.runtime != nil ? "\(movie?.runtime!) min" : nil)
-                                infoRow("Estado", movie?.status)
-                                infoRow("Idioma original", movie?.originalLanguage?.uppercased())
+                                infoRow("Fecha de estreno", series?.firstAirDate)
+                                infoRow("Estado", series?.status)
+                                infoRow("Idioma original", series?.originalLanguage?.uppercased())
+                                infoRow("Temporadas", series?.numberOfSeasons != nil ? "\(series!.numberOfSeasons!)" : nil)
+                                infoRow("Episodios", series?.numberOfEpisodes != nil ? "\(series!.numberOfEpisodes!)" : nil)
                                 
-                                if let homepage = movie?.homepage {
+                                if let homepage = series?.homepage {
                                     infoRow("Página oficial", homepage.isEmpty ? "-" : homepage)
                                 }
                             }
@@ -111,7 +111,7 @@ struct MovieDetailView: View {
                         .padding(.horizontal)
                     }
                     
-                    if let langs = movie?.spokenLanguages, !langs.isEmpty {
+                    if let langs = series?.spokenLanguages, !langs.isEmpty {
                         VStack(alignment: .leading, spacing: 12) {
                             Text("Idiomas hablados")
                                 .font(.title3.bold())
@@ -133,16 +133,14 @@ struct MovieDetailView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal)
                     }
-                    
-                    // Boton de favoritos
                     Button(action: {
-                        if let movie = movie {
+                        if let series = series {
                             Task {
                                 do {
                                     try await api.addFavorite(
-                                        itemId: movie.id,
-                                        type: "movie",
-                                        title: movie.title
+                                        itemId: series.id,
+                                        type: "serie",
+                                        title: series.name
                                     )
                                 } catch {
                                     print("Error al agregar favorito:", error)
@@ -157,7 +155,7 @@ struct MovieDetailView: View {
                         .foregroundColor(.white)
                         .padding()
                         .frame(maxWidth: .infinity)
-                        .background(Color.red)
+                        .background(Color.purple)
                         .clipShape(RoundedRectangle(cornerRadius: 15))
                         .padding(.horizontal)
                     }
@@ -168,7 +166,6 @@ struct MovieDetailView: View {
                 .padding(.top, 80)
             }
             
-            // Boton de regreso
             VStack {
                 HStack {
                     Button(action: { dismiss() }) {
@@ -204,7 +201,7 @@ struct MovieDetailView: View {
                         .cornerRadius(12)
                     
                     Button("Reintentar") {
-                        loadMovie()
+                        loadSeries()
                     }
                     .padding(.top)
                 }
@@ -212,31 +209,30 @@ struct MovieDetailView: View {
         }
         .navigationBarBackButtonHidden(true)
         .onAppear {
-             animate = true
-             loadMovie()
+            animate = true
+            loadSeries()
         }
     }
-
-    // Informacion de filas
+    
     private func infoRow(_ title: String, _ value: String?) -> some View {
         HStack {
             Text(title + ":")
                 .foregroundColor(.white.opacity(0.7))
-                .frame(width: 120, alignment: .leading)
+                .frame(width: 140, alignment: .leading)
             Spacer()
             Text(value ?? "-")
                 .foregroundColor(.white)
                 .multilineTextAlignment(.trailing)
         }
     }
-
-    // Carga de datos
-    private func loadMovie() {
+    
+    // Cargar detalles
+    private func loadSeries() {
         Task {
             isLoading = true
             do {
-                let detail = try await api.getMovieDetail(id: id)
-                self.movie = detail
+                let detail = try await api.getSeriesDetail(id: id)
+                self.series = detail
                 self.isLoading = false
                 self.showError = false
             } catch {

@@ -51,24 +51,18 @@ class TMDBService
         ]);
     }
 
-    public function search($query)
+    public function searchMovie($query)
     {
-        return $this->get("search/multi", [
+        return $this->get("search/movie", [
             'query' => $query,
             'language' => 'es-MX'
         ]);
     }
 
-    public function movieVideos($id)
+    public function searchSerie($query)
     {
-        return $this->get("movie/{$id}/videos", [
-            'language' => 'es-MX'
-        ]);
-    }
-
-    public function seriesVideos($id)
-    {
-        return $this->get("tv/{$id}/videos", [
+        return $this->get("search/tv", [
+            'query' => $query,
             'language' => 'es-MX'
         ]);
     }

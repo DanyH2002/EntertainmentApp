@@ -15,6 +15,9 @@ struct LoginView: View {
     @State private var password = ""
     @State private var errorMessage: String?
     
+    @Environment(\.dismiss) private var dismiss
+    @State private var isLoading = false
+    
     var body: some View {
         VStack{
             Text("Iniciar Sesión")
@@ -39,14 +42,19 @@ struct LoginView: View {
                     .bold()
             }
             
-            Button("Ingresar") {
-                login()
+            Button(action: login) {
+                if isLoading {
+                    ProgressView()
+                        .tint(.white)
+                } else {
+                    Text("Ingresar")
+                }
             }
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(Color.teal)
-                .foregroundColor(.white)
-                .cornerRadius(10)
+            .frame(maxWidth: .infinity)
+            .padding()
+            .background(Color.teal)
+            .foregroundColor(.white)
+            .cornerRadius(10)
             
             NavigationLink("¿No tienes cuenta? Regístrate", destination: RegisterView())
                 .padding(.top)
@@ -54,12 +62,22 @@ struct LoginView: View {
         .padding()
     }
     
-    func login(){
+    func login() {
+        isLoading = true
+        errorMessage = nil
+        
         api.login(email: email, password: password) { success, error in
-            if success {
-                appState.isLoggedIn = true
-            } else {
-                errorMessage = error
+            DispatchQueue.main.async {
+                isLoading = false
+                if success {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        withAnimation {
+                            appState.isLoggedIn = true
+                        }
+                    }
+                } else {
+                    errorMessage = error
+                }
             }
         }
     }

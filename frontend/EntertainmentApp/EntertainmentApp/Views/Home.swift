@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct Home: View {
+    @StateObject var nav = NavigationManager.shared
+    
     var body: some View {
         TabView{
             Tab("Peliculas",systemImage: "film"){

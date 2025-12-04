@@ -1,5 +1,5 @@
 //
-//  Movie.swift
+//  API.swift
 //  EntertainmentApp
 //
 //  Created by Hulda Daniela Crisanto Luna on 24/11/25.
@@ -7,6 +7,7 @@
 
 import Foundation
 
+// MARK: Modelos de Movies
 struct MovieResponse: Codable {
     let page: Int
     let results: [Movie]
@@ -99,6 +100,98 @@ struct MovieDetail: Codable, Identifiable {
     }
 }
 
+// MARK: Modelos de Series
+struct SeriesResponse: Codable {
+    let page: Int
+    let results: [Serie]
+}
+
+struct Serie: Codable, Identifiable {
+    let id: Int
+    let name: String
+    let originalName: String?
+    let overview: String
+    let poster: String?
+    let backdrop: String?
+    let firstAirDate: String?
+    let voteAverage: Double?
+    let popularity: Double?
+    let originCountry: [String]?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case originalName = "original_name"
+        case overview
+        case poster = "poster_path"
+        case backdrop = "backdrop_path"
+        case firstAirDate = "first_air_date"
+        case voteAverage = "vote_average"
+        case popularity
+        case originCountry = "origin_country"
+    }
+    
+    var posterURL: String? {
+        if let poster {
+            return "https://image.tmdb.org/t/p/w500\(poster)"
+        }
+        return nil
+    }
+}
+
+struct SeriesDetail: Codable, Identifiable {
+    let id: Int
+    let adult: Bool?
+    let backdropPath: String?
+    let genres: [Genre]?
+    let homepage: String?
+    let originCountry: [String]?
+    let originalLanguage: String?
+    let originalName: String?
+    let overview: String?
+    let popularity: Double?
+    let posterPath: String?
+    let productionCompanies: [ProductionCompany]?
+    let productionCountries: [ProductionCountry]?
+    let firstAirDate: String?
+    let lastAirDate: String?
+    let numberOfSeasons: Int?
+    let numberOfEpisodes: Int?
+    let status: String?
+    let tagline: String?
+    let name: String
+    let voteAverage: Double?
+    let voteCount: Int?
+    let spokenLanguages: [SpokenLanguage]?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case adult
+        case backdropPath = "backdrop_path"
+        case genres
+        case homepage
+        case originCountry = "origin_country"
+        case originalLanguage = "original_language"
+        case originalName = "original_name"
+        case overview
+        case popularity
+        case posterPath = "poster_path"
+        case productionCompanies = "production_companies"
+        case productionCountries = "production_countries"
+        case firstAirDate = "first_air_date"
+        case lastAirDate = "last_air_date"
+        case numberOfSeasons = "number_of_seasons"
+        case numberOfEpisodes = "number_of_episodes"
+        case status
+        case tagline
+        case name
+        case voteAverage = "vote_average"
+        case voteCount = "vote_count"
+        case spokenLanguages = "spoken_languages"
+    }
+}
+
+// MARK: Modelos auxiliares
 struct Genre: Codable {
     let id: Int
     let name: String

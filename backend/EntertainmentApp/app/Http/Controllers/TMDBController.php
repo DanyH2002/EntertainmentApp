@@ -46,9 +46,9 @@ class TMDBController extends Controller
     }
 
     /**
-     * Funcion para buscar una pelicula o serie
+     * Funcion para buscar una pelicula
      */
-    public function search()
+    public function searchMovie()
     {
         $query = request()->query('q');
 
@@ -56,19 +56,20 @@ class TMDBController extends Controller
             return response()->json(['error' => 'Debe enviar un parámetro q'], 400);
         }
 
-        return response()->json($this->tmdb->search($query));
+        return response()->json($this->tmdb->searchMovie($query));
     }
 
     /**
-     * Funcion para buscar el trailer de peliculas o seria NOTA: No todas las respuestas tiene un video
+     * Funcion para buscar una serie
      */
-    public function movieVideos($id)
+    public function searchSerie()
     {
-        return response()->json($this->tmdb->movieVideos($id));
-    }
+        $query = request()->query('q');
 
-    public function seriesVideos($id)
-    {
-        return response()->json($this->tmdb->seriesVideos($id));
+        if (!$query) {
+            return response()->json(['error' => 'Debe enviar un parámetro q'], 400);
+        }
+
+        return response()->json($this->tmdb->searchSerie($query));
     }
 }

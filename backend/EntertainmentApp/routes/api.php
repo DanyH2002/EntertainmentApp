@@ -17,14 +17,12 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::delete('/delete/{id}', [FavoriteController::class, 'destroy']);
     });
 
-
     Route::prefix('tmdb')->group(function () {
         Route::get('/movies/popular', [TMDBController::class, 'popularMovies']);
         Route::get('/series/popular', [TMDBController::class, 'popularSeries']);
         Route::get('/movie/{id}', [TMDBController::class, 'movieDetails']);
         Route::get('/series/{id}', [TMDBController::class, 'seriesDetails']);
-        Route::get('/search', [TMDBController::class, 'search']);
-        Route::get('/movie/{id}/videos', [TMDBController::class, 'movieVideos']);
-        Route::get('/series/{id}/videos', [TMDBController::class, 'seriesVideos']);
+        Route::get('/search/movie', [TMDBController::class, 'searchMovie']);
+        Route::get('/search/serie', [TMDBController::class, 'searchSerie']);
     });
 });

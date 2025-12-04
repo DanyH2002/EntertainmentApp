@@ -11,31 +11,41 @@ struct HomeView: View {
     @State private var movies: [Movie] = []
     @State private var loading = true
     @State private var errorMessage: String?
+    @State private var searchText = ""
+    @StateObject private var nav = NavigationManager.shared
     
     var body: some View {
         NavigationStack {
-            Group {
-                if loading {
-                    ProgressView("Cargando películas...")
-                }
-                else if let errorMessage = errorMessage {
-                    Text(errorMessage)
-                        .foregroundColor(.red)
-                }
-                else {
-                    List(movies) { movie in
-                        NavigationLink(destination: MovieDetailView(id:movie.id)) {
-                            HStack {
-                                MoviePoster(url: movie.poster)
-                                    .frame(width: 60, height: 90)
-                                
-                                VStack(alignment: .leading) {
-                                    Text(movie.title)
-                                        .font(.headline)
+            VStack {
+                SearchBarView(text: $searchText)
+                    .padding(.bottom, 5)
+                
+                Group {
+                    if loading {
+                        ProgressView("Cargando películas...")
+                    }
+                    else if let errorMessage = errorMessage {
+                        Text(errorMessage)
+                            .foregroundColor(.red)
+                    }
+                    else {
+                        List(movies) { movie in
+                            Button {
+                                nav.pushMovieDetail(id: movie.id)
+                            } label: {
+                            // NavigationLink(destination: MovieDetailView(id:movie.id)) {
+                                HStack {
+                                    PosterView(url: movie.poster)
+                                        .frame(width: 60, height: 90)
                                     
-                                    Text(movie.overview)
-                                        .font(.caption)
-                                        .lineLimit(3)
+                                    VStack(alignment: .leading) {
+                                        Text(movie.title)
+                                            .font(.headline)
+                                        
+                                        Text(movie.overview)
+                                            .font(.caption)
+                                            .lineLimit(3)
+                                    }
                                 }
                             }
                         }
@@ -46,6 +56,27 @@ struct HomeView: View {
             .onAppear {
                 loadPopularMovies()
             }
+            .onChange(of: searchText) { newValue in
+                Task {
+                    if newValue.isEmpty {
+                        loadPopularMovies()
+                    } else {
+                        await searchMovies()
+                    }
+                }
+            }
+            .navigationDestination(item: $nav.movieDetailID) { id in
+                MovieDetailView(id: id)
+            }
+        }
+    }
+    
+    func searchMovies() async {
+        do {
+            let results = try await ApiService().searchMovie(query: searchText)
+            await MainActor.run { self.movies = results }
+        } catch {
+            print("❌ Error de búsqueda:", error)
         }
     }
     
@@ -64,6 +95,19 @@ struct HomeView: View {
                     return
                 }
                 
+                /*guard let results = json?["results"] as? [[String: Any]] else {
+                    errorMessage = "Formato inválido"
+                    return
+                }
+
+                do {
+                    let data = try JSONSerialization.data(withJSONObject: results)
+                    self.movies = try JSONDecoder().decode([Movie].self, from: data)
+                } catch {
+                    errorMessage = "Error al decodificar"
+                }
+                 */
+                
                 guard let json = json else {
                     errorMessage = "Respuesta vacía"
                     return
@@ -77,9 +121,11 @@ struct HomeView: View {
                     } catch {
                         errorMessage = "Error al decodificar datos"
                     }
+                    
                 } else {
                     errorMessage = "Formato de datos inválido"
                 }
+            
             }
         }
     }

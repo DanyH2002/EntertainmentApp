@@ -1,5 +1,5 @@
 //
-//  MoviePoster.swift
+//  PosterView.swift
 //  EntertainmentApp
 //
 //  Created by Hulda Daniela Crisanto Luna on 27/11/25.
@@ -7,12 +7,14 @@
 
 import SwiftUI
 
-struct MoviePoster: View {
+struct PosterView: View {
     let url: String?
     
     var body: some View {
         AsyncImage(url: makeURL()) { image in
-            image.resizable().scaledToFill()
+            image
+                .resizable()
+                .scaledToFill()
         } placeholder: {
             Rectangle().fill(Color.gray.opacity(0.3))
         }
@@ -25,5 +27,5 @@ struct MoviePoster: View {
 }
 
 #Preview {
-    MoviePoster(url: "/xYLBgw7dHyEqmcrSk2Sq3asuSq5.jpg")
+    PosterView(url: "/xYLBgw7dHyEqmcrSk2Sq3asuSq5.jpg")
 }
