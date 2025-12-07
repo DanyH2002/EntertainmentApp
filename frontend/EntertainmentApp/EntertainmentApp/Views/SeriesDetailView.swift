@@ -148,6 +148,8 @@ struct SeriesDetailView: View {
                                     showAlert = true
                                 } catch {
                                     print("Error al agregar favorito:", error)
+                                    alertMessage = "No se pudo agregar a favoritos"
+                                    showAlert = true
                                 }
                             }
                         }

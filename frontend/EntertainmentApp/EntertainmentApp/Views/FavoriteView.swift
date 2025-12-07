@@ -60,23 +60,36 @@ struct FavoriteView: View {
     @ViewBuilder
     func favoriteRow(fav: Favorite, isMovie: Bool) -> some View {
         HStack {
-            VStack(alignment: .leading) {
-                Text(fav.title)
-                    .font(.body)
-                Text("ID: \(fav.itemId)")
-                    .font(.caption)
-                    .foregroundColor(.gray)
+            NavigationLink {
+                if isMovie {
+                    MovieDetailView(id: fav.itemId)
+                } else {
+                    SeriesDetailView(id: fav.itemId)
+                }
+            } label: {
+                VStack(alignment: .leading) {
+                    Text(fav.title)
+                        .font(.body)
+                        .foregroundColor(.primary)
+
+                    Text("ID: \(fav.itemId)")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
             }
+            
             Spacer()
+            
             Button {
                 deleteFavorite(id: fav.id)
             } label: {
                 Image(systemName: "trash")
                     .foregroundColor(.red)
-                    .padding(.leading, 8)
             }
+            .buttonStyle(.borderless)
         }
     }
+
     
     // Servicios
     func loadFavorites() {
