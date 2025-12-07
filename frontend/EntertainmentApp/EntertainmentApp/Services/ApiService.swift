@@ -28,15 +28,13 @@ class ApiService: ObservableObject {
     // Funcion para peticiones
     func sendRequest(url: URL, method: String,body: [String: Any]?,
                              completion: @escaping ([String: Any]?, String?) -> Void){ // Devuelve respuesta
-        print("📡 [sendRequest-closure] Enviando petición a: \(url.absoluteString)")
-        if let body = body { print("➡️ Body: \(body)") }
+        if let body = body { print("Body: \(body)") }
         
         var request = URLRequest(url: url)
         request.httpMethod = method
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         // Si hay un token agrega a los headers
         if let token = token {
-            print("🔑 Token enviado")
             request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         // Se asegura que el body que se envia sea un JSON
@@ -47,18 +45,14 @@ class ApiService: ObservableObject {
         URLSession.shared.dataTask(with: request) { data, _, error in
             DispatchQueue.main.async {
                 if let error = error {
-                    print("❌ [sendRequest-closure] Error de conexión:", error.localizedDescription)
                     completion(nil, error.localizedDescription)
                     return
                 }
                 guard let data = data else {
-                    print("❌ [sendRequest-closure] Sin datos del servidor")
                     completion(nil, "Sin datos del servidor")
                     return
                 }
                 // Parcea la respuesta a JSON
-                print("📥 [sendRequest-closure] JSON bruto recibido:")
-                print(String(data: data, encoding: .utf8) ?? "⚠️ No se pudo convertir a String")
                 let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
                 completion(json, nil)
             }
@@ -69,8 +63,7 @@ class ApiService: ObservableObject {
     // Funcion auxiliar que recibe un codeable y lo decodifique
     func sendRequest<T: Decodable>(url: URL, method: String,
                                    body: [String: Any]? = nil, returnType: T.Type) async throws -> T {
-        print("📡 [sendRequest-async] Enviando petición a: \(url.absoluteString)")
-        if let body = body { print("➡️ Body: \(body)") }
+        if let body = body { print("Body: \(body)") }
         
         var request = URLRequest(url: url)
         request.httpMethod = method
@@ -78,7 +71,6 @@ class ApiService: ObservableObject {
         
         // Token si existe
         if let token = token {
-            print("🔑 Token enviado en headers")
             request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         
@@ -89,26 +81,20 @@ class ApiService: ObservableObject {
         
         // Ejecutar petición
         let (data, response) = try await URLSession.shared.data(for: request)
-        print("📥 [sendRequest-async] DATA recibido (RAW):")
-        print(String(data: data, encoding: .utf8) ?? "⚠️ No se pudo convertir a String")
-        
         if let http = response as? HTTPURLResponse {
-               print("📬 Status code recibido: \(http.statusCode)")
+               print("Status code: \(http.statusCode)")
         }
         
-        // Decodificar JSON → Modelo
+        // Decodificar JSON
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         do {
             let decoded = try decoder.decode(T.self, from: data)
-            print("✅ [sendRequest-async] JSON decodificado correctamente")
             return decoded
         } catch {
-            print("❌ [sendRequest-async] ERROR al decodificar JSON:")
             print(error)
             throw error
         }
-        //return try decoder.decode(T.self, from: data)
     }
     
     // Funcion login
@@ -128,7 +114,7 @@ class ApiService: ObservableObject {
                 }
                 // Guarda el token
                 guard let token = json?["token"] as? String else {
-                    completion(false, "Token inválido")
+                    completion(false, "Credenciales incorrectas. Intenta otra vez.")
                     return
                 }
                 self.token = token
@@ -155,7 +141,7 @@ class ApiService: ObservableObject {
                         
             guard let token = json?["token"] as? String else {
                 DispatchQueue.main.async {
-                    completion(false, "Token inválido")
+                    completion(false, "Revisa los datos otra vez.")
                 }
                 return
             }
@@ -167,59 +153,27 @@ class ApiService: ObservableObject {
         }
     }
     
-    // Funcion para Favoritos
-    func addFavorite(itemId: Int, type: String, title: String) async throws {
-        guard let url = URL(string: "\(baseUrl)/favorite/add") else { throw URLError(.badURL) }
-        let body: [String: Any] = [
-            "item_id": itemId,
-            "type": type,
-            "title": title
-        ]
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try JSONSerialization.data(withJSONObject: body)
-        
-        let (_, response) = try await URLSession.shared.data(for: request)
-        
-        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-            throw URLError(.badServerResponse)
-        }
-    }
-    
     // ver detalles de las peliculas
     func getMovieDetail(id: Int) async throws -> MovieDetail {
         let url = URL(string: "\(baseUrl)/tmdb/movie/\(id)")!
-        print("📡 [getMovieDetail] Ejecutando petición a: \(url.absoluteString)")
-        
         let detail: MovieDetail = try await sendRequest(
             url: url,
             method: "GET",
             body: nil,
             returnType: MovieDetail.self
         )
-        
-        print("✅ [getMovieDetail] Respuesta decodificada: \(detail)")
-        
         return detail
     }
     
     // ver detalles de las series
     func getSeriesDetail(id: Int) async throws -> SeriesDetail {
         let url = URL(string: "\(baseUrl)/tmdb/series/\(id)")!
-        
-        print("📡 [getSeriesDetail] Ejecutando petición a: \(url.absoluteString)")
-        
         let detail: SeriesDetail = try await sendRequest(
             url: url,
             method: "GET",
             body: nil,
             returnType: SeriesDetail.self
         )
-        
-        print("✅ [getSeriesDetail] Respuesta decodificada: \(detail)")
-        
         return detail
     }
     
@@ -235,10 +189,6 @@ class ApiService: ObservableObject {
         request.setValue("Bearer \(token ?? "")", forHTTPHeaderField: "Authorization")
 
         let (data, response) = try await URLSession.shared.data(for: request)
-
-        // Debug para ver EXACTO qué responde Laravel
-        print("📄 RAW RESPONSE:", String(data: data, encoding: .utf8) ?? "no readable")
-
         let decoded = try JSONDecoder().decode(SearchMovieResponse.self, from: data)
         return decoded.results
     }
@@ -254,11 +204,52 @@ class ApiService: ObservableObject {
         request.setValue("Bearer \(token ?? "")", forHTTPHeaderField: "Authorization")
 
         let (data, response) = try await URLSession.shared.data(for: request)
-
-        print("📄 RAW RESPONSE:", String(data: data, encoding: .utf8) ?? "no readable")
-
         let decoded = try JSONDecoder().decode(SearchSeriesResponse.self, from: data)
         return decoded.results
     }
     
+    // Funciones para Favoritos
+    func getFavorites() async throws -> FavoritesResponse {
+        guard let url = URL(string: "\(baseUrl)/favorite/list") else {
+            throw URLError(.badURL)
+        }
+        
+        return try await sendRequest(
+            url: url,
+            method: "GET",
+            returnType: FavoritesResponse.self
+        )
+    }
+
+    func addFavorite(itemId: Int, type: String, title: String) async throws -> AddFavoriteResponse {
+        guard let url = URL(string: "\(baseUrl)/favorite/add") else {
+            throw URLError(.badURL)
+        }
+
+        let body: [String: Any] = [
+            "item_id": itemId,
+            "type": type,
+            "title": title
+        ]
+
+        return try await sendRequest(
+            url: url,
+            method: "POST",
+            body: body,
+            returnType: AddFavoriteResponse.self
+        )
+    }
+    
+    func deleteFavorite(id: Int) async throws -> DeleteFavoriteResponse {
+        guard let url = URL(string: "\(baseUrl)/favorite/delete/\(id)") else {
+            throw URLError(.badURL)
+        }
+
+        return try await sendRequest(
+            url: url,
+            method: "DELETE",
+            returnType: DeleteFavoriteResponse.self
+        )
+    }
+
 }

@@ -10,6 +10,8 @@ import SwiftUI
 struct MovieDetailView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var api: ApiService
+    @State private var showAlert = false
+    @State private var alertMessage = ""
 
     let id: Int
 
@@ -139,11 +141,13 @@ struct MovieDetailView: View {
                         if let movie = movie {
                             Task {
                                 do {
-                                    try await api.addFavorite(
+                                    let response = try await api.addFavorite(
                                         itemId: movie.id,
                                         type: "movie",
                                         title: movie.title
                                     )
+                                    alertMessage = response.message
+                                    showAlert = true
                                 } catch {
                                     print("Error al agregar favorito:", error)
                                 }
@@ -160,6 +164,11 @@ struct MovieDetailView: View {
                         .background(Color.red)
                         .clipShape(RoundedRectangle(cornerRadius: 15))
                         .padding(.horizontal)
+                    }
+                    .alert("Favoritos", isPresented: $showAlert) {
+                        Button("OK", role: .cancel) { }
+                    } message: {
+                        Text(alertMessage)
                     }
                     .padding(.top, 10)
                     

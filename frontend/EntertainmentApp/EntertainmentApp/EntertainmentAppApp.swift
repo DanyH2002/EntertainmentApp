@@ -13,7 +13,6 @@ struct EntertainmentAppApp: App {
     @StateObject var api = ApiService()
     var body: some Scene {
         WindowGroup {
-            // ContentView()
             NavigationStack {
                 if appState.isLoggedIn {
                     Home()

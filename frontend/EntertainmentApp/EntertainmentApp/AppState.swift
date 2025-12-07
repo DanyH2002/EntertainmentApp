@@ -11,9 +11,8 @@ import Combine
 class AppState: ObservableObject {
     @Published var isLoggedIn: Bool = false {
         didSet {
-            print("🔄 isLoggedIn cambiado a: \(isLoggedIn), Thread main: \(Thread.isMainThread)")
             if !Thread.isMainThread {
-                print("⚠️ PELIGRO: isLoggedIn modificado desde background thread!")
+                print("isLoggedIn modificado desde background thread")
             }
         }
     }

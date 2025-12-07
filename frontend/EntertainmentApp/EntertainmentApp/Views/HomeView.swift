@@ -76,7 +76,7 @@ struct HomeView: View {
             let results = try await ApiService().searchMovie(query: searchText)
             await MainActor.run { self.movies = results }
         } catch {
-            print("❌ Error de búsqueda:", error)
+            print("Error de búsqueda:", error)
         }
     }
     
@@ -94,19 +94,6 @@ struct HomeView: View {
                     errorMessage = error
                     return
                 }
-                
-                /*guard let results = json?["results"] as? [[String: Any]] else {
-                    errorMessage = "Formato inválido"
-                    return
-                }
-
-                do {
-                    let data = try JSONSerialization.data(withJSONObject: results)
-                    self.movies = try JSONDecoder().decode([Movie].self, from: data)
-                } catch {
-                    errorMessage = "Error al decodificar"
-                }
-                 */
                 
                 guard let json = json else {
                     errorMessage = "Respuesta vacía"

@@ -76,7 +76,7 @@ struct SeriesView: View {
             let results = try await ApiService().searchSerie(query: searchText)
             await MainActor.run { self.series = results }
         } catch {
-            print("❌ Error de búsqueda:", error)
+            print("Error de búsqueda:", error)
         }
     }
     
@@ -94,28 +94,12 @@ struct SeriesView: View {
                     return
                 }
                 
-                /*
-                guard let results = json?["results"] as? [[String: Any]] else {
-                    errorMessage = "Formato inválido"
-                    return
-                }
-
-                do {
-                    let data = try JSONSerialization.data(withJSONObject: results)
-                    self.series = try JSONDecoder().decode([Serie].self, from: data)
-                } catch {
-                    errorMessage = "Error al decodificar"
-                }
-                */
-
-                
                 guard let json = json else {
                     errorMessage = "Respuesta vacía"
                     return
                 }
 
                 if let results = json["results"] as? [[String: Any]] {
-                    print("📺 JSON results en series:", results.count)
                     do {
                         let data = try JSONSerialization.data(withJSONObject: results)
                         let decodedSeries = try JSONDecoder().decode([Serie].self, from: data)
