@@ -10,6 +10,7 @@ import SwiftUI
 struct RegisterView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var api: ApiService
+    @Environment(\.dismiss) private var dismiss
     
     @State private var name = ""
     @State private var last_name = ""
@@ -17,6 +18,7 @@ struct RegisterView: View {
     @State private var password = ""
     @State private var confirmPassword = ""
     @State private var errorMessage: String?
+    @State private var isLoading = false
     
     var body: some View {
         VStack (spacing: 25){
@@ -35,17 +37,20 @@ struct RegisterView: View {
                 .cornerRadius(10)
             
             TextField("Correo electrónico", text: $email)
+                .textContentType(.emailAddress)
                 .textInputAutocapitalization(.never)
                 .padding()
                 .background(Color.gray.opacity(0.2))
                 .cornerRadius(10)
             
             SecureField("Contraseña", text: $password)
+                .textContentType(.newPassword)
                 .padding()
                 .background(Color.gray.opacity(0.2))
                 .cornerRadius(10)
-            
+
             SecureField("Confirmar contraseña", text: $confirmPassword)
+                .textContentType(.newPassword)
                 .padding()
                 .background(Color.gray.opacity(0.2))
                 .cornerRadius(10)
@@ -57,8 +62,12 @@ struct RegisterView: View {
                     .bold()
             }
             
-            Button("Registrarse") {
-                registro()
+            Button(action: registro) {
+                if isLoading {
+                    ProgressView().tint(.white)
+                } else {
+                    Text("Registrarse")
+                }
             }
             .frame(maxWidth: .infinity)
             .padding()
@@ -74,16 +83,27 @@ struct RegisterView: View {
             errorMessage = "Las contraseñas no coinciden"
             return
         }
+        
+        isLoading = true
+        errorMessage = nil
+        
         api.register(name: name,last_name: last_name, email: email, password: password) { success, error in
-            if success {
-                appState.isLoggedIn = true
-            } else {
-                errorMessage = error
+            DispatchQueue.main.async {
+                isLoading = false
+                if success {
+                    dismiss()
+                } else {
+                    errorMessage = error
+                }
             }
         }
     }
 }
 
 #Preview {
-    RegisterView()
+    NavigationStack {
+        RegisterView()
+            .environmentObject(AppState())
+            .environmentObject(ApiService())
+    }
 }
