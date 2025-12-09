@@ -136,10 +136,6 @@ El backend quedará disponible en:
        http://127.0.0.1:8000/api
 
 ## Video demostrativo
-Video del funcionamiento del sistema
-
-👉 [https://www.youtube.com/embed/](https://www.youtube.com/watch?v=i3weuLPiGcQ)
-
 En el video se muestra:
 
 - Registro de usuario
@@ -147,6 +143,16 @@ En el video se muestra:
 - Navegación por películas y series
 - Búsquedas
 - Agregar y eliminar favoritos
+
+<iframe width="560" height="315"
+src="https://www.youtube.com/embed/i3weuLPiGcQ"
+title="Video demostrativo EntertainmentApp"
+frameborder="0"
+allowfullscreen>
+</iframe>
+
+🔗 Enlace directo al video:  
+https://www.youtube.com/watch?v=i3weuLPiGcQ
 
 ## Autor
 
