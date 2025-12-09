@@ -144,15 +144,8 @@ En el video se muestra:
 - Búsquedas
 - Agregar y eliminar favoritos
 
-<iframe width="560" height="315"
-src="https://www.youtube.com/embed/i3weuLPiGcQ"
-title="Video demostrativo EntertainmentApp"
-frameborder="0"
-allowfullscreen>
-</iframe>
-
-🔗 Enlace directo al video:  
-https://www.youtube.com/watch?v=i3weuLPiGcQ
+🔗 Enlace:  
+[![Video demostrativo EntertainmentApp](https://img.youtube.com/vi/i3weuLPiGcQ/0.jpg)](https://www.youtube.com/watch?v=i3weuLPiGcQ)
 
 ## Autor
 
