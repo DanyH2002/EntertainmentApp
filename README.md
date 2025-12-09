@@ -144,7 +144,7 @@ En el video se muestra:
 - Búsquedas
 - Agregar y eliminar favoritos
 
-🔗 Enlace:  
+🔗 Video en YouTube:  
 [![Video demostrativo EntertainmentApp](https://img.youtube.com/vi/i3weuLPiGcQ/0.jpg)](https://www.youtube.com/watch?v=i3weuLPiGcQ)
 
 ## Autor
